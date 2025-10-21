@@ -6,6 +6,7 @@ from app.states.ui_state import UIState
 from app.states.saved_trials_state import SavedTrialsState
 from app.states.report_state import ReportState
 from app.components.tooltip_wrapper import tooltip
+from app.states.ai_state import AIState
 
 
 def detail_section(title: str, content: rx.Var, is_html: bool = True) -> rx.Component:
@@ -460,6 +461,61 @@ def trial_detail_page() -> rx.Component:
                             detail_section(
                                 "Detailed Description",
                                 trial.get("detailed_description"),
+                            ),
+                            rx.el.div(
+                                rx.el.div(
+                                    rx.el.h3(
+                                        "AI Summary",
+                                        class_name="font-semibold text-gray-800 text-base",
+                                    ),
+                                    rx.el.button(
+                                        rx.icon(
+                                            tag="sparkles", size=14, class_name="mr-1.5"
+                                        ),
+                                        "Generate Summary",
+                                        on_click=lambda: AIState.generate_trial_summary(
+                                            trial["nct_id"]
+                                        ),
+                                        is_loading=AIState.is_generating_summary.contains(
+                                            trial["nct_id"]
+                                        ),
+                                        class_name="flex items-center text-xs font-medium bg-purple-100 text-purple-700 px-2.5 py-1 rounded-md hover:bg-purple-200",
+                                    ),
+                                    class_name="flex justify-between items-center mb-2",
+                                ),
+                                rx.cond(
+                                    AIState.is_generating_summary.contains(
+                                        trial["nct_id"]
+                                    ),
+                                    rx.el.div(
+                                        rx.spinner(),
+                                        class_name="w-full flex justify-center p-4",
+                                    ),
+                                    rx.cond(
+                                        AIState.ai_summaries.contains(trial["nct_id"]),
+                                        rx.el.div(
+                                            rx.html(
+                                                AIState.ai_summaries[
+                                                    trial["nct_id"]
+                                                ].replace(
+                                                    """
+""",
+                                                    "<br />",
+                                                )
+                                            ),
+                                            class_name="prose prose-sm max-w-none p-3 bg-gray-50 rounded-lg border border-gray-200",
+                                        ),
+                                        rx.el.div(
+                                            "Click button to generate an AI-powered summary.",
+                                            class_name="text-center text-sm text-gray-500 p-4 border border-dashed rounded-lg",
+                                        ),
+                                    ),
+                                ),
+                                rx.el.p(
+                                    f"Powered by {AIState.current_provider}",
+                                    class_name="text-xs text-gray-400 text-right mt-1",
+                                ),
+                                class_name="py-3 border-t border-gray-200",
                             ),
                             eligibility_criteria_section(),
                             enrollment_chart(),

@@ -186,6 +186,7 @@ app.add_page(
 )
 from app.pages.alerts import alerts_page
 from app.states.alerts_state import AlertsState
+from app.states.ai_state import AIState
 
 app.add_page(
     alerts_page,

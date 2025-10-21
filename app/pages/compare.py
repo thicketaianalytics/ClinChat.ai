@@ -5,6 +5,7 @@ from app.components.sidebar import sidebar
 from app.states.report_state import ReportState
 from app.components.empty_state import empty_state
 from app.components.tooltip_wrapper import tooltip
+from app.states.ai_state import AIState
 
 
 def selected_trial_chip(nct_id: str) -> rx.Component:
@@ -166,6 +167,57 @@ def compare_page() -> rx.Component:
                         button_text="Go to My Trials",
                         href="/my-trials",
                     ),
+                ),
+            ),
+            rx.cond(
+                ComparisonState.comparison_data.length() > 1,
+                rx.el.div(
+                    rx.el.div(
+                        rx.el.h2(
+                            "AI-Powered Insights",
+                            class_name="text-xl font-semibold text-gray-800",
+                        ),
+                        rx.el.button(
+                            rx.icon(tag="sparkles", size=16, class_name="mr-2"),
+                            "Generate AI Insights",
+                            on_click=AIState.generate_comparison_insights,
+                            is_loading=AIState.is_generating_insights,
+                            class_name="flex items-center bg-purple-600 text-white text-sm font-medium py-2 px-4 rounded-md hover:bg-purple-700",
+                        ),
+                        class_name="flex justify-between items-center mb-4",
+                    ),
+                    rx.cond(
+                        AIState.is_generating_insights,
+                        rx.el.div(
+                            rx.spinner(size="3"),
+                            class_name="flex items-center justify-center p-8 bg-white rounded-xl border border-gray-200 shadow-sm",
+                        ),
+                        rx.cond(
+                            AIState.comparison_insights,
+                            rx.el.div(
+                                rx.html(
+                                    AIState.comparison_insights.replace(
+                                        """
+""",
+                                        "<br />",
+                                    )
+                                ),
+                                class_name="prose prose-sm max-w-none p-4 bg-white rounded-xl border border-gray-200 shadow-sm",
+                            ),
+                            rx.el.div(
+                                rx.el.p(
+                                    "Click 'Generate AI Insights' to get an automated comparison summary.",
+                                    class_name="text-sm text-gray-500",
+                                ),
+                                class_name="text-center p-8 bg-white rounded-xl border-dashed border-gray-300",
+                            ),
+                        ),
+                    ),
+                    rx.el.p(
+                        f"Powered by {AIState.current_provider}",
+                        class_name="text-xs text-gray-400 text-right mt-2",
+                    ),
+                    class_name="mt-8",
                 ),
             ),
             id="main-content",
