@@ -44,12 +44,17 @@ class AuthState(rx.State):
 
     @rx.event(background=True)
     async def handle_registration(self, form_data: dict):
+        validation_passed = False
+        error_message_local = ""
         async with self:
             self.is_processing = True
-        if not self._validate_registration(form_data):
-            async with self:
+            if self._validate_registration(form_data):
+                validation_passed = True
+            else:
+                error_message_local = self.error_message
                 self.is_processing = False
-                yield rx.toast.warning(self.error_message)
+        if not validation_passed:
+            yield rx.toast.warning(error_message_local)
             return
         email = form_data.get("email", "").strip()
         password = form_data.get("password", "")
