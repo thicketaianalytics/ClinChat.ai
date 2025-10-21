@@ -18,6 +18,7 @@ class WorkspaceState(rx.State):
     workspaces: list[Workspace] = []
     is_loading: bool = False
     show_create_dialog: bool = False
+    is_creating: bool = False
 
     async def _get_user_email(self) -> str | None:
         auth_state = await self.get_state(AuthState)
@@ -49,39 +50,51 @@ class WorkspaceState(rx.State):
 
     @rx.event(background=True)
     async def create_workspace(self, form_data: dict):
-        user_email = None
         async with self:
-            auth_state = await self.get_state(AuthState)
-            if auth_state.user:
-                user_email = auth_state.user.get("email")
+            self.is_creating = True
+        user_email = await self._get_user_email()
         if not user_email:
-            yield rx.toast.error("You must be logged in to create a workspace.")
+            async with self:
+                yield rx.toast.error("You must be logged in to create a workspace.")
+                self.is_creating = False
             return
         name = form_data.get("name", "").strip()
         if not name:
-            yield rx.toast.warning("Workspace name cannot be empty.")
+            async with self:
+                yield rx.toast.warning("Workspace name cannot be empty.")
+                self.is_creating = False
             return
-        now = datetime.datetime.now(datetime.timezone.utc).isoformat()
-        workspace_id = str(uuid.uuid4())
-        new_workspace = Workspace(
-            workspace_id=workspace_id,
-            name=name,
-            description=form_data.get("description", ""),
-            owner_email=user_email,
-            members=[WorkspaceMember(email=user_email, role="owner", joined_date=now)],
-            trials=[],
-            created_date=now,
-            last_updated=now,
-            activity=[],
-        )
-        _workspaces_db[workspace_id] = new_workspace
-        if user_email not in _user_workspaces_db:
-            _user_workspaces_db[user_email] = set()
-        _user_workspaces_db[user_email].add(workspace_id)
-        async with self:
-            self.workspaces.insert(0, new_workspace)
-            self.show_create_dialog = False
-            yield rx.toast.success(f"Workspace '{name}' created!")
+        try:
+            now = datetime.datetime.now(datetime.timezone.utc).isoformat()
+            workspace_id = str(uuid.uuid4())
+            new_workspace = Workspace(
+                workspace_id=workspace_id,
+                name=name,
+                description=form_data.get("description", ""),
+                owner_email=user_email,
+                members=[
+                    WorkspaceMember(email=user_email, role="owner", joined_date=now)
+                ],
+                trials=[],
+                created_date=now,
+                last_updated=now,
+                activity=[],
+            )
+            _workspaces_db[workspace_id] = new_workspace
+            if user_email not in _user_workspaces_db:
+                _user_workspaces_db[user_email] = set()
+            _user_workspaces_db[user_email].add(workspace_id)
+            async with self:
+                self.workspaces.insert(0, new_workspace)
+                self.show_create_dialog = False
+                yield rx.toast.success(f"Workspace '{name}' created!")
+        except Exception as e:
+            logging.exception(f"Failed to create workspace: {e}")
+            async with self:
+                yield rx.toast.error("An error occurred while creating the workspace.")
+        finally:
+            async with self:
+                self.is_creating = False
 
     @rx.event
     def set_show_create_dialog(self, show: bool):

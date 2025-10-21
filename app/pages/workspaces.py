@@ -2,6 +2,7 @@ import reflex as rx
 from app.states.workspace_state import WorkspaceState
 from app.states.ui_state import UIState
 from app.components.sidebar import sidebar
+from app.components.empty_state import empty_state
 
 
 def create_workspace_dialog() -> rx.Component:
@@ -12,6 +13,9 @@ def create_workspace_dialog() -> rx.Component:
                 "Create New Workspace",
                 class_name="flex items-center bg-blue-600 text-white text-sm font-medium py-2 px-4 rounded-md hover:bg-blue-700",
             )
+        ),
+        rx.radix.primitives.dialog.overlay(
+            class_name="DialogOverlay fixed inset-0 bg-black/50"
         ),
         rx.radix.primitives.dialog.content(
             rx.radix.primitives.dialog.title(
@@ -57,6 +61,7 @@ def create_workspace_dialog() -> rx.Component:
                     rx.el.button(
                         "Create Workspace",
                         type="submit",
+                        is_loading=WorkspaceState.is_creating,
                         class_name="bg-blue-600 text-white text-sm font-medium py-2 px-4 rounded-md hover:bg-blue-700",
                     ),
                     class_name="flex justify-end gap-3",
@@ -64,7 +69,7 @@ def create_workspace_dialog() -> rx.Component:
                 on_submit=WorkspaceState.create_workspace,
                 reset_on_submit=True,
             ),
-            style={"max_width": "450px"},
+            class_name="DialogContent fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90vw] max-w-md rounded-xl bg-white p-6 shadow-lg",
         ),
         open=WorkspaceState.show_create_dialog,
         on_open_change=WorkspaceState.set_show_create_dialog,
@@ -100,7 +105,7 @@ def workspace_card(workspace: rx.Var[dict]) -> rx.Component:
             class_name="flex items-center gap-4 mt-3 pt-3 border-t border-gray-100",
         ),
         href=f"/workspaces/{workspace['workspace_id']}",
-        class_name="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex flex-col hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300",
+        class_name="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex flex-col hover:shadow-lg hover:border-blue-300 hover:-translate-y-1 transition-all duration-300",
     )
 
 
@@ -129,24 +134,20 @@ def workspaces_page() -> rx.Component:
                         rx.foreach(WorkspaceState.workspaces, workspace_card),
                         class_name="grid md:grid-cols-2 lg:grid-cols-3 gap-6",
                     ),
-                    rx.el.div(
-                        rx.icon("users", size=48, class_name="text-gray-400 mx-auto"),
-                        rx.el.h3(
-                            "Create Your First Workspace",
-                            class_name="mt-4 text-lg font-semibold text-gray-800",
-                        ),
-                        rx.el.p(
-                            "Get started by creating a workspace to collaborate with your team.",
-                            class_name="mt-1 text-sm text-gray-500",
-                        ),
-                        class_name="text-center py-16 px-6 bg-gray-50 rounded-xl border border-dashed border-gray-300",
+                    empty_state(
+                        icon="users",
+                        title="Create Your First Workspace",
+                        description="Get started by creating a workspace to collaborate with your team.",
+                        button_text="Create Workspace",
+                        button_action=WorkspaceState.set_show_create_dialog(True),
                     ),
                 ),
             ),
+            id="main-content",
             class_name=rx.cond(
                 UIState.sidebar_collapsed,
-                "p-8 flex-1 md:ml-20 transition-all duration-300",
-                "p-8 flex-1 md:ml-64 transition-all duration-300",
+                "p-8 flex-1 md:ml-20 transition-all duration-300 fade-in-content",
+                "p-8 flex-1 md:ml-64 transition-all duration-300 fade-in-content",
             ),
         ),
         class_name="flex font-['DM_Sans'] bg-gray-50 min-h-screen",

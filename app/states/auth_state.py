@@ -12,6 +12,7 @@ class AuthState(rx.State):
     is_authenticated: bool = False
     user: Optional[User] = None
     is_hydrated: bool = False
+    is_processing: bool = False
 
     def _hash_password(self, password: str) -> str:
         return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
@@ -41,34 +42,53 @@ class AuthState(rx.State):
         self.error_message = ""
         return True
 
-    @rx.event
-    def handle_registration(self, form_data: dict):
+    @rx.event(background=True)
+    async def handle_registration(self, form_data: dict):
+        async with self:
+            self.is_processing = True
         if not self._validate_registration(form_data):
+            async with self:
+                self.is_processing = False
+                yield rx.toast.warning(self.error_message)
             return
         email = form_data.get("email", "").strip()
         password = form_data.get("password", "")
         password_hash = self._hash_password(password)
         new_user = User(email=email, password_hash=password_hash)
         _users[email] = new_user
-        self.is_authenticated = True
-        self.user = new_user
-        return rx.redirect("/dashboard")
+        async with self:
+            self.is_authenticated = True
+            self.user = new_user
+            self.is_processing = False
+            yield rx.toast.success("Registration successful! Welcome.")
+            yield rx.redirect("/dashboard")
 
-    @rx.event
-    def handle_login(self, form_data: dict):
+    @rx.event(background=True)
+    async def handle_login(self, form_data: dict):
+        async with self:
+            self.is_processing = True
         email = form_data.get("email", "").strip()
         password = form_data.get("password", "")
         if not email or not password:
-            self.error_message = "Email and password are required."
+            async with self:
+                self.error_message = "Email and password are required."
+                self.is_processing = False
+                yield rx.toast.warning(self.error_message)
             return
         user = _users.get(email)
         if user and self._verify_password(password, user["password_hash"]):
-            self.is_authenticated = True
-            self.user = user
-            self.error_message = ""
-            return rx.redirect("/dashboard")
+            async with self:
+                self.is_authenticated = True
+                self.user = user
+                self.error_message = ""
+                self.is_processing = False
+                yield rx.toast.success("Login successful! Welcome back.")
+                yield rx.redirect("/dashboard")
         else:
-            self.error_message = "Invalid email or password."
+            async with self:
+                self.error_message = "Invalid email or password."
+                self.is_processing = False
+                yield rx.toast.error(self.error_message)
 
     @rx.event
     def logout(self):

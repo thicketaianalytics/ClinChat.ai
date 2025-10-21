@@ -13,6 +13,9 @@ def add_member_dialog() -> rx.Component:
                 class_name="flex items-center bg-white text-gray-700 border border-gray-300 text-sm font-medium py-2 px-4 rounded-md hover:bg-gray-50",
             )
         ),
+        rx.radix.primitives.dialog.overlay(
+            class_name="DialogOverlay fixed inset-0 bg-black/50"
+        ),
         rx.radix.primitives.dialog.content(
             rx.radix.primitives.dialog.title(
                 "Add New Member", class_name="text-lg font-semibold text-gray-800"
@@ -66,7 +69,7 @@ def add_member_dialog() -> rx.Component:
                 on_submit=WorkspaceDetailState.add_member,
                 reset_on_submit=True,
             ),
-            style={"max_width": "450px"},
+            class_name="DialogContent fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90vw] max-w-md rounded-xl bg-white p-6 shadow-lg",
         ),
         open=WorkspaceDetailState.show_add_member_dialog,
         on_open_change=WorkspaceDetailState.set_show_add_member_dialog,
@@ -82,19 +85,30 @@ def add_trial_dialog() -> rx.Component:
                 class_name="flex items-center bg-blue-600 text-white text-sm font-medium py-2 px-4 rounded-md hover:bg-blue-700",
             )
         ),
+        rx.radix.primitives.dialog.overlay(
+            class_name="DialogOverlay fixed inset-0 bg-black/50"
+        ),
         rx.radix.primitives.dialog.content(
             rx.radix.primitives.dialog.title(
                 "Add Trial to Workspace",
                 class_name="text-lg font-semibold text-gray-800",
             ),
             rx.el.form(
-                rx.el.input(name="nct_id", placeholder="Enter NCT ID..."),
-                rx.el.button("Add Trial", type="submit"),
+                rx.el.input(
+                    name="nct_id",
+                    placeholder="Enter NCT ID...",
+                    class_name="w-full text-sm border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500",
+                ),
+                rx.el.button(
+                    "Add Trial",
+                    type="submit",
+                    class_name="bg-blue-600 text-white font-medium py-2 px-6 rounded-md hover:bg-blue-700",
+                ),
                 on_submit=WorkspaceDetailState.add_trial_to_current_workspace,
                 reset_on_submit=True,
                 class_name="flex gap-2 mt-4",
             ),
-            style={"max_width": "450px"},
+            class_name="DialogContent fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90vw] max-w-md rounded-xl bg-white p-6 shadow-lg",
         ),
         open=WorkspaceDetailState.show_add_trial_dialog,
         on_open_change=WorkspaceDetailState.set_show_add_trial_dialog,
@@ -209,10 +223,11 @@ def workspace_detail_page() -> rx.Component:
                     ),
                 ),
             ),
+            id="main-content",
             class_name=rx.cond(
                 UIState.sidebar_collapsed,
-                "p-8 flex-1 md:ml-20 transition-all duration-300",
-                "p-8 flex-1 md:ml-64 transition-all duration-300",
+                "p-8 flex-1 md:ml-20 transition-all duration-300 fade-in-content",
+                "p-8 flex-1 md:ml-64 transition-all duration-300 fade-in-content",
             ),
         ),
         class_name="flex font-['DM_Sans'] bg-gray-50 min-h-screen",

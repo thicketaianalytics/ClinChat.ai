@@ -5,6 +5,7 @@ from app.components.sidebar import sidebar
 from app.states.ui_state import UIState
 from app.states.saved_trials_state import SavedTrialsState
 from app.states.report_state import ReportState
+from app.components.tooltip_wrapper import tooltip
 
 
 def detail_section(title: str, content: rx.Var, is_html: bool = True) -> rx.Component:
@@ -111,21 +112,17 @@ def complexity_badge() -> rx.Component:
         ("Very High", "bg-red-100 text-red-800"),
         "bg-gray-100 text-gray-800",
     )
-    return rx.el.div(
-        rx.icon(tag="puzzle", size=20, class_name="text-gray-500"),
-        rx.el.p("Complexity", class_name="text-xs text-gray-500"),
-        rx.el.span(
-            rating,
-            class_name=f"text-sm font-medium {color_class} px-2 py-0.5 rounded-full",
-        ),
+    return tooltip(
+        f"Score based on number of locations, interventions, outcomes, etc. Total: {TrialDetailState.complexity_score} points.",
         rx.el.div(
-            rx.el.p(
-                f"{TrialDetailState.complexity_score} points",
-                class_name="text-xs text-gray-500",
+            rx.icon(tag="puzzle", size=20, class_name="text-gray-500"),
+            rx.el.p("Complexity", class_name="text-xs text-gray-500"),
+            rx.el.span(
+                rating,
+                class_name=f"text-sm font-medium {color_class} px-2 py-0.5 rounded-full",
             ),
-            class_name="absolute bottom-full mb-2 w-48 bg-gray-800 text-white text-xs rounded py-1 px-2 text-center opacity-0 group-hover:opacity-100 transition-opacity",
+            class_name="flex flex-col items-center justify-center p-3 rounded-lg bg-gray-50 text-center",
         ),
-        class_name="relative group flex flex-col items-center justify-center p-3 rounded-lg bg-gray-50 text-center",
     )
 
 
@@ -386,25 +383,44 @@ def trial_detail_page() -> rx.Component:
                             class_name="text-sm font-medium text-blue-600 hover:underline mb-2 inline-block",
                         ),
                         rx.el.div(
-                            rx.el.button(
-                                rx.icon(tag="bookmark", size=16, class_name="mr-2"),
-                                "Save to My Trials",
-                                on_click=lambda: SavedTrialsState.save_trial(
-                                    trial.get("nct_id")
+                            tooltip(
+                                "Save this trial to your list (Cmd+S)",
+                                rx.el.button(
+                                    rx.icon(tag="bookmark", size=16, class_name="mr-2"),
+                                    "Save to My Trials",
+                                    on_click=lambda: SavedTrialsState.save_trial(
+                                        trial.get("nct_id")
+                                    ),
+                                    class_name="flex items-center bg-blue-600 text-white text-sm font-medium py-1.5 px-3 rounded-md hover:bg-blue-700 transition-colors",
+                                    id="save-trial-button",
                                 ),
-                                class_name="flex items-center bg-blue-600 text-white text-sm font-medium py-1.5 px-3 rounded-md hover:bg-blue-700 transition-colors",
                             ),
-                            rx.el.button(
-                                rx.icon(tag="file-down", size=16, class_name="mr-2"),
-                                "Download PDF",
-                                on_click=ReportState.generate_trial_pdf,
-                                is_loading=ReportState.is_generating_pdf,
-                                class_name="flex items-center bg-white text-gray-700 border border-gray-300 text-sm font-medium py-1.5 px-3 rounded-md hover:bg-gray-50 transition-colors",
+                            tooltip(
+                                "Generate and download a PDF report for this trial",
+                                rx.el.button(
+                                    rx.icon(
+                                        tag="file-down", size=16, class_name="mr-2"
+                                    ),
+                                    "Download PDF",
+                                    on_click=ReportState.generate_trial_pdf,
+                                    is_loading=ReportState.is_generating_pdf,
+                                    class_name="flex items-center bg-white text-gray-700 border border-gray-300 text-sm font-medium py-1.5 px-3 rounded-md hover:bg-gray-50 transition-colors",
+                                ),
                             ),
                             class_name="flex items-center gap-2",
                         ),
                         class_name="flex items-center justify-between mb-2",
                     ),
+                    rx.script("""
+                        function handleSave() {
+                            const saveButton = document.getElementById('save-trial-button');
+                            if (saveButton) {
+                                saveButton.click();
+                            }
+                        }
+                        document.addEventListener('keyboard-save', handleSave);
+                        // Clean up listener when component unmounts is handled by framework
+                        """),
                     rx.cond(
                         TrialDetailState.is_loading,
                         rx.el.div(
@@ -539,10 +555,11 @@ def trial_detail_page() -> rx.Component:
                 ),
                 class_name="max-w-6xl mx-auto",
             ),
+            id="main-content",
             class_name=rx.cond(
                 UIState.sidebar_collapsed,
-                "p-3 md:p-4 flex-1 md:ml-20 transition-all duration-300",
-                "p-3 md:p-4 flex-1 md:ml-64 transition-all duration-300",
+                "p-3 md:p-4 flex-1 md:ml-20 transition-all duration-300 fade-in-content",
+                "p-3 md:p-4 flex-1 md:ml-64 transition-all duration-300 fade-in-content",
             ),
         ),
         class_name="flex font-['DM_Sans'] bg-gray-50 min-h-screen",

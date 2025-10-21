@@ -2,6 +2,9 @@ import reflex as rx
 from app.states.browse_state import BrowseState
 from app.states.ui_state import UIState
 from app.components.sidebar import sidebar
+from app.components.loading_skeletons import trial_card_skeleton
+from app.components.empty_state import empty_state
+from app.components.tooltip_wrapper import tooltip
 
 
 def filter_input(
@@ -14,7 +17,8 @@ def filter_input(
             placeholder=placeholder,
             default_value=value,
             on_change=lambda val: BrowseState.set_search_term(name, val),
-            class_name="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500",
+            class_name="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent",
+            aria_label=label,
         ),
     )
 
@@ -30,7 +34,8 @@ def filter_select(
             name=name,
             value=value,
             on_change=lambda val: BrowseState.set_search_term(name, val),
-            class_name="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white",
+            class_name="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white",
+            aria_label=label,
         ),
     )
 
@@ -106,16 +111,21 @@ def trial_card(trial: rx.Var[dict]) -> rx.Component:
                 rx.icon(tag="arrow-right", size=16),
                 "View Details",
                 href=f"/trial/{trial['nct_id']}",
-                class_name="flex items-center gap-2 w-full justify-center text-sm font-medium text-blue-600 hover:text-blue-700 px-3 py-2 rounded-md transition-colors",
+                class_name="flex items-center gap-2 w-full justify-center text-sm font-medium text-blue-600 hover:bg-blue-50 px-3 py-2 rounded-md transition-all duration-200",
             ),
-            rx.el.button(
-                rx.icon(tag="bookmark", size=16),
-                on_click=lambda: BrowseState.bookmark_trial(trial["nct_id"]),
-                class_name="p-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors",
+            tooltip(
+                "Save to My Trials (Cmd+S)",
+                rx.el.button(
+                    rx.icon(tag="bookmark", size=16),
+                    on_click=lambda: BrowseState.bookmark_trial(trial["nct_id"]),
+                    is_loading=BrowseState.bookmark_loading[trial["nct_id"]],
+                    class_name="p-2 text-gray-600 hover:bg-gray-100 hover:text-blue-600 rounded-md transition-all duration-200 transform hover:scale-110 active:scale-95",
+                    aria_label="Save trial",
+                ),
             ),
             class_name="mt-2 flex justify-between items-center",
         ),
-        class_name="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex flex-col hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 h-full position: 'relative'",
+        class_name="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex flex-col hover:shadow-lg hover:border-blue-300 hover:-translate-y-1 transition-all duration-300 h-full",
     )
 
 
@@ -228,44 +238,53 @@ def browse_page() -> rx.Component:
                 rx.cond(
                     BrowseState.is_table_loading,
                     rx.el.div(
-                        rx.spinner(size="3"),
-                        class_name="flex items-center justify-center h-96",
+                        rx.foreach([1, 2, 3, 4, 5, 6], lambda i: trial_card_skeleton()),
+                        class_name="grid md:grid-cols-2 lg:grid-cols-3 gap-6",
                     ),
-                    rx.el.div(
+                    rx.cond(
+                        BrowseState.trials.length() > 0,
                         rx.el.div(
-                            rx.foreach(BrowseState.trials, trial_card),
-                            class_name="grid md:grid-cols-2 gap-6",
-                        ),
-                        rx.el.div(
-                            rx.el.span(
-                                f"Page {BrowseState.current_page} of {BrowseState.total_pages}",
-                                class_name="text-sm text-gray-600",
+                            rx.el.div(
+                                rx.foreach(BrowseState.trials, trial_card),
+                                class_name="grid md:grid-cols-2 lg:grid-cols-3 gap-6",
                             ),
                             rx.el.div(
-                                rx.el.button(
-                                    "Previous",
-                                    on_click=BrowseState.prev_page,
-                                    disabled=BrowseState.current_page <= 1,
-                                    class_name="px-3 py-1 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50",
+                                rx.el.span(
+                                    f"Page {BrowseState.current_page} of {BrowseState.total_pages}",
+                                    class_name="text-sm text-gray-600",
                                 ),
-                                rx.el.button(
-                                    "Next",
-                                    on_click=BrowseState.next_page,
-                                    disabled=BrowseState.current_page
-                                    >= BrowseState.total_pages,
-                                    class_name="ml-2 px-3 py-1 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50",
+                                rx.el.div(
+                                    rx.el.button(
+                                        "Previous",
+                                        on_click=BrowseState.prev_page,
+                                        disabled=BrowseState.current_page <= 1,
+                                        class_name="px-3 py-1 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50",
+                                    ),
+                                    rx.el.button(
+                                        "Next",
+                                        on_click=BrowseState.next_page,
+                                        disabled=BrowseState.current_page
+                                        >= BrowseState.total_pages,
+                                        class_name="ml-2 px-3 py-1 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50",
+                                    ),
+                                    class_name="flex",
                                 ),
-                                class_name="flex",
+                                class_name="flex items-center justify-between mt-8 text-sm font-medium text-gray-700",
                             ),
-                            class_name="flex items-center justify-between mt-8 text-sm font-medium text-gray-700",
+                        ),
+                        empty_state(
+                            icon="search-x",
+                            title="No Trials Found",
+                            description="Your search did not match any clinical trials. Try adjusting your filters.",
                         ),
                     ),
                 ),
             ),
+            id="main-content",
             class_name=rx.cond(
                 UIState.sidebar_collapsed,
-                "p-8 flex-1 md:ml-20 transition-all duration-300",
-                "p-8 flex-1 md:ml-64 transition-all duration-300",
+                "p-8 flex-1 md:ml-20 transition-all duration-300 fade-in-content",
+                "p-8 flex-1 md:ml-64 transition-all duration-300 fade-in-content",
             ),
         ),
         class_name="flex font-['DM_Sans'] bg-gray-50 min-h-screen",

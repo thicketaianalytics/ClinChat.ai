@@ -23,6 +23,7 @@ class SavedTrialsState(rx.State):
         "Archived",
         "To Compare",
     ]
+    is_exporting_csv: bool = False
 
     @rx.var
     def filtered_trials(self) -> list[SavedTrial]:
@@ -208,18 +209,29 @@ class SavedTrialsState(rx.State):
 
     @rx.event(background=True)
     async def export_to_csv(self):
-        user_trials = await self._get_user_trials()
-        if not user_trials:
-            async with self:
-                yield rx.toast.error("No saved trials to export.")
-            return
-        df = pl.DataFrame(list(user_trials.values()))
-        csv_bytes = export_df_to_csv(df)
         async with self:
-            if csv_bytes:
-                yield rx.download(
-                    data=csv_bytes,
-                    filename=f"clinchat_saved_trials_{datetime.date.today()}.csv",
-                )
-            else:
-                yield rx.toast.error("Failed to export data.")
+            self.is_exporting_csv = True
+        try:
+            user_trials = await self._get_user_trials()
+            if not user_trials or not list(user_trials.values()):
+                async with self:
+                    yield rx.toast.warning("No saved trials to export.")
+                return
+            df = pl.DataFrame(list(user_trials.values()))
+            csv_bytes = export_df_to_csv(df)
+            async with self:
+                if csv_bytes:
+                    yield rx.download(
+                        data=csv_bytes,
+                        filename=f"clinchat_saved_trials_{datetime.date.today()}.csv",
+                    )
+                    yield rx.toast.success("CSV export generated successfully!")
+                else:
+                    yield rx.toast.error("Failed to export data.")
+        except Exception as e:
+            logging.exception(f"Error during CSV export: {e}")
+            async with self:
+                yield rx.toast.error("An error occurred during export.")
+        finally:
+            async with self:
+                self.is_exporting_csv = False

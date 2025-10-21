@@ -3,6 +3,8 @@ from app.states.comparison_state import ComparisonState
 from app.states.ui_state import UIState
 from app.components.sidebar import sidebar
 from app.states.report_state import ReportState
+from app.components.empty_state import empty_state
+from app.components.tooltip_wrapper import tooltip
 
 
 def selected_trial_chip(nct_id: str) -> rx.Component:
@@ -12,6 +14,7 @@ def selected_trial_chip(nct_id: str) -> rx.Component:
             rx.icon(tag="x", size=14),
             on_click=lambda: ComparisonState.remove_trial_from_comparison(nct_id),
             class_name="ml-1.5 p-0.5 rounded-full hover:bg-red-200 text-red-700",
+            aria_label=f"Remove {nct_id} from comparison",
         ),
         class_name="flex items-center bg-red-100 text-red-800 text-sm font-medium px-2.5 py-1 rounded-full",
     )
@@ -156,33 +159,20 @@ def compare_page() -> rx.Component:
                 rx.cond(
                     ComparisonState.comparison_data.length() > 0,
                     comparison_table(),
-                    rx.el.div(
-                        rx.icon(
-                            "git-compare-arrows",
-                            size=48,
-                            class_name="text-gray-400 mx-auto",
-                        ),
-                        rx.el.h3(
-                            "Start Comparing Trials",
-                            class_name="mt-4 text-lg font-semibold text-gray-800",
-                        ),
-                        rx.el.p(
-                            "Add NCT IDs above or select trials from 'My Trials' to begin.",
-                            class_name="mt-1 text-sm text-gray-500",
-                        ),
-                        rx.el.a(
-                            "Go to My Trials",
-                            href="/my-trials",
-                            class_name="mt-4 inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700",
-                        ),
-                        class_name="text-center py-16 px-6 bg-white rounded-xl border border-dashed border-gray-300 shadow-sm",
+                    empty_state(
+                        icon="git-compare-arrows",
+                        title="Start Comparing Trials",
+                        description="Add NCT IDs above or select trials from 'My Trials' to begin.",
+                        button_text="Go to My Trials",
+                        href="/my-trials",
                     ),
                 ),
             ),
+            id="main-content",
             class_name=rx.cond(
                 UIState.sidebar_collapsed,
-                "p-8 flex-1 md:ml-20 transition-all duration-300",
-                "p-8 flex-1 md:ml-64 transition-all duration-300",
+                "p-8 flex-1 md:ml-20 transition-all duration-300 fade-in-content",
+                "p-8 flex-1 md:ml-64 transition-all duration-300 fade-in-content",
             ),
         ),
         class_name="flex font-['DM_Sans'] bg-gray-50 min-h-screen",

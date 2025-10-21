@@ -3,6 +3,7 @@ from app.states.auth_state import AuthState
 from app.states.dashboard_state import DashboardState
 from app.states.ui_state import UIState
 from app.components.sidebar import sidebar
+from app.components.loading_skeletons import metric_card_skeleton
 
 
 def metric_card(title: str, value: rx.Var[str], icon: str) -> rx.Component:
@@ -117,39 +118,50 @@ def dashboard_page() -> rx.Component:
                 ),
                 class_name="flex justify-between items-start mb-8",
             ),
-            rx.el.div(
-                metric_card(
-                    "Total Trials",
-                    DashboardState.total_trials.to_string(),
-                    "bar-chart-2",
+            rx.cond(
+                DashboardState.is_loading,
+                rx.el.div(
+                    rx.foreach([1, 2, 3, 4, 5, 6, 7], lambda i: metric_card_skeleton()),
+                    class_name="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 mb-8",
                 ),
-                metric_card(
-                    "Active Trials", DashboardState.active_trials.to_string(), "loader"
+                rx.el.div(
+                    metric_card(
+                        "Total Trials",
+                        DashboardState.total_trials.to_string(),
+                        "bar-chart-2",
+                    ),
+                    metric_card(
+                        "Active Trials",
+                        DashboardState.active_trials.to_string(),
+                        "loader",
+                    ),
+                    metric_card(
+                        "Completed Trials",
+                        DashboardState.completed_trials.to_string(),
+                        "check_check",
+                    ),
+                    metric_card(
+                        "Phase 1 Trials",
+                        DashboardState.phase_1_trials.to_string(),
+                        "beaker",
+                    ),
+                    metric_card(
+                        "Phase 2 Trials",
+                        DashboardState.phase_2_trials.to_string(),
+                        "test_tube",
+                    ),
+                    metric_card(
+                        "Phase 3 Trials",
+                        DashboardState.phase_3_trials.to_string(),
+                        "test-tubes",
+                    ),
+                    metric_card(
+                        "Phase 4 Trials",
+                        DashboardState.phase_4_trials.to_string(),
+                        "award",
+                    ),
+                    class_name="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 mb-8",
                 ),
-                metric_card(
-                    "Completed Trials",
-                    DashboardState.completed_trials.to_string(),
-                    "check_check",
-                ),
-                metric_card(
-                    "Phase 1 Trials",
-                    DashboardState.phase_1_trials.to_string(),
-                    "beaker",
-                ),
-                metric_card(
-                    "Phase 2 Trials",
-                    DashboardState.phase_2_trials.to_string(),
-                    "test_tube",
-                ),
-                metric_card(
-                    "Phase 3 Trials",
-                    DashboardState.phase_3_trials.to_string(),
-                    "test-tubes",
-                ),
-                metric_card(
-                    "Phase 4 Trials", DashboardState.phase_4_trials.to_string(), "award"
-                ),
-                class_name="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 mb-8",
             ),
             rx.el.div(
                 quick_action_button("Browse All Trials", "search", "/browse"),
@@ -191,10 +203,11 @@ def dashboard_page() -> rx.Component:
                     class_name="space-y-3",
                 ),
             ),
+            id="main-content",
             class_name=rx.cond(
                 UIState.sidebar_collapsed,
-                "p-8 flex-1 md:ml-20 transition-all duration-300",
-                "p-8 flex-1 md:ml-64 transition-all duration-300",
+                "p-8 flex-1 md:ml-20 transition-all duration-300 fade-in-content",
+                "p-8 flex-1 md:ml-64 transition-all duration-300 fade-in-content",
             ),
         ),
         class_name="flex font-['DM_Sans'] bg-gray-50 min-h-screen",

@@ -4,6 +4,9 @@ from app.states.ui_state import UIState
 from app.components.sidebar import sidebar
 import datetime
 from app.states.report_state import ReportState
+from app.components.loading_skeletons import trial_card_skeleton
+from app.components.empty_state import empty_state
+from app.components.tooltip_wrapper import tooltip
 
 
 def tag_badge(tag: str, nct_id: str) -> rx.Component:
@@ -19,6 +22,7 @@ def tag_badge(tag: str, nct_id: str) -> rx.Component:
             rx.icon(tag="x", size=12),
             on_click=lambda: SavedTrialsState.remove_tag(nct_id, tag),
             class_name="ml-1.5 opacity-50 hover:opacity-100",
+            aria_label=f"Remove tag {tag}",
         ),
         class_name=f"{color_map.get(tag, 'bg-gray-100 text-gray-800')} text-xs font-medium inline-flex items-center px-2 py-0.5 rounded-full",
     )
@@ -89,10 +93,15 @@ def saved_trial_card(trial: rx.Var[dict]) -> rx.Component:
                 href=f"/trial/{nct_id}",
                 class_name="flex items-center gap-2 w-full justify-center text-sm font-medium text-blue-600 hover:text-blue-700 px-3 py-2 rounded-md transition-colors",
             ),
-            rx.el.button(
-                rx.icon(tag="trash-2", size=16),
-                on_click=lambda: SavedTrialsState.remove_trial(nct_id),
-                class_name="p-2 text-red-600 hover:bg-red-50 rounded-md transition-colors",
+            tooltip(
+                "Remove from My Trials",
+                rx.el.button(
+                    rx.icon(tag="trash-2", size=16),
+                    on_click=lambda: SavedTrialsState.remove_trial(nct_id),
+                    class_name="p-2 text-red-600 hover:bg-red-50 rounded-md transition-colors",
+                    aria_label="Remove trial",
+                ),
+                side="bottom",
             ),
             class_name="mt-2 flex justify-between items-center border-t border-gray-200 pt-2",
         ),
@@ -155,6 +164,7 @@ def my_trials_page() -> rx.Component:
                     rx.el.button(
                         "Export All to CSV",
                         on_click=SavedTrialsState.export_to_csv,
+                        is_loading=SavedTrialsState.is_exporting_csv,
                         class_name="text-sm font-medium bg-white text-gray-700 border border-gray-300 px-3 py-1.5 rounded-md hover:bg-gray-50",
                     ),
                     rx.el.button(
@@ -186,9 +196,7 @@ def my_trials_page() -> rx.Component:
             rx.cond(
                 SavedTrialsState.is_loading,
                 rx.el.div(
-                    rx.el.div(class_name="h-96 bg-gray-200 rounded-xl animate-pulse"),
-                    rx.el.div(class_name="h-96 bg-gray-200 rounded-xl animate-pulse"),
-                    rx.el.div(class_name="h-96 bg-gray-200 rounded-xl animate-pulse"),
+                    rx.foreach([1, 2, 3], lambda i: trial_card_skeleton()),
                     class_name="grid md:grid-cols-2 lg:grid-cols-3 gap-6",
                 ),
                 rx.cond(
@@ -202,33 +210,20 @@ def my_trials_page() -> rx.Component:
                         ),
                         class_name="grid md:grid-cols-2 lg:grid-cols-3 gap-6",
                     ),
-                    rx.el.div(
-                        rx.icon(
-                            tag="bookmark-plus",
-                            size=48,
-                            class_name="text-gray-400 mx-auto",
-                        ),
-                        rx.el.h3(
-                            "No Saved Trials Yet",
-                            class_name="mt-4 text-lg font-semibold text-gray-800",
-                        ),
-                        rx.el.p(
-                            "Browse trials and click the bookmark icon to save them here.",
-                            class_name="mt-1 text-sm text-gray-500",
-                        ),
-                        rx.el.a(
-                            "Browse Trials",
-                            href="/browse",
-                            class_name="mt-4 inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700",
-                        ),
-                        class_name="text-center py-16 px-6 bg-gray-50 rounded-xl border border-dashed border-gray-300",
+                    empty_state(
+                        icon="bookmark-plus",
+                        title="No Saved Trials Yet",
+                        description="Browse trials and click the bookmark icon to save them here.",
+                        button_text="Browse Trials",
+                        href="/browse",
                     ),
                 ),
             ),
+            id="main-content",
             class_name=rx.cond(
                 UIState.sidebar_collapsed,
-                "p-8 flex-1 md:ml-20 transition-all duration-300",
-                "p-8 flex-1 md:ml-64 transition-all duration-300",
+                "p-8 flex-1 md:ml-20 transition-all duration-300 fade-in-content",
+                "p-8 flex-1 md:ml-64 transition-all duration-300 fade-in-content",
             ),
         ),
         class_name="flex font-['DM_Sans'] bg-gray-50 min-h-screen",

@@ -103,6 +103,9 @@ def create_watchlist_dialog() -> rx.Component:
                 class_name="flex items-center bg-blue-600 text-white text-sm font-medium py-2 px-4 rounded-md hover:bg-blue-700",
             )
         ),
+        rx.radix.primitives.dialog.overlay(
+            class_name="DialogOverlay fixed inset-0 bg-black/50"
+        ),
         rx.radix.primitives.dialog.content(
             rx.radix.primitives.dialog.title(
                 "Create New Watchlist", class_name="text-lg font-semibold text-gray-800"
@@ -155,7 +158,7 @@ def create_watchlist_dialog() -> rx.Component:
                 on_submit=AlertsState.create_watchlist,
                 reset_on_submit=True,
             ),
-            style={"max_width": "550px"},
+            class_name="DialogContent fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90vw] max-w-lg rounded-xl bg-white p-6 shadow-lg",
         ),
         open=AlertsState.show_create_dialog,
         on_open_change=AlertsState.set_show_create_dialog,
@@ -201,14 +204,15 @@ def alerts_page() -> rx.Component:
                             "Get started by creating a watchlist to monitor new trials automatically.",
                             class_name="mt-1 text-sm text-gray-500",
                         ),
-                        class_name="text-center py-16 px-6 bg-gray-50 rounded-xl border border-dashed border-gray-300",
+                        class_name="text-center py-16 px-6 bg-white rounded-xl border border-dashed border-gray-300 shadow-sm",
                     ),
                 ),
             ),
+            id="main-content",
             class_name=rx.cond(
                 UIState.sidebar_collapsed,
-                "p-8 flex-1 md:ml-20 transition-all duration-300",
-                "p-8 flex-1 md:ml-64 transition-all duration-300",
+                "p-8 flex-1 md:ml-20 transition-all duration-300 fade-in-content",
+                "p-8 flex-1 md:ml-64 transition-all duration-300 fade-in-content",
             ),
         ),
         class_name="flex font-['DM_Sans'] bg-gray-50 min-h-screen",

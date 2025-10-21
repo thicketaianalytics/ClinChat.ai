@@ -22,13 +22,20 @@ async def database_lifespan():
 
 def index() -> rx.Component:
     from app.components.hydration_fallback import hydration_fallback
+    from app.components.skip_link import skip_to_content
+    from app.components.keyboard_shortcuts import keyboard_shortcuts
+    from app.components.mobile_nav import mobile_nav_toggle, mobile_sidebar_overlay
 
     return rx.fragment(
+        skip_to_content(),
         rx.cond(
             AuthState.is_hydrated,
             rx.cond(AuthState.is_authenticated, dashboard_page(), login_page()),
             hydration_fallback(),
-        )
+        ),
+        keyboard_shortcuts(),
+        mobile_nav_toggle(),
+        mobile_sidebar_overlay(),
     )
 
 
@@ -47,6 +54,60 @@ app = rxe.App(
             integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=",
             cross_origin="",
         ),
+        rx.el.style("""
+            .sr-only {
+                position: absolute;
+                width: 1px;
+                height: 1px;
+                padding: 0;
+                margin: -1px;
+                overflow: hidden;
+                clip: rect(0, 0, 0, 0);
+                white-space: nowrap;
+                border-width: 0;
+            }
+            .focus\\:not-sr-only:focus {
+                position: static;
+                width: auto;
+                height: auto;
+                padding: 0;
+                margin: 0;
+                overflow: visible;
+                clip: auto;
+                white-space: normal;
+            }
+            *:focus-visible {
+                outline: 2px solid #3b82f6;
+                outline-offset: 2px;
+                border-radius: 4px; /* Optional: adds rounded corners to the outline */
+            }
+            """),
+        rx.el.style("""
+            /* Radix Dialog Animations */
+            @keyframes overlayShow {
+              from { opacity: 0; }
+              to { opacity: 1; }
+            }
+            @keyframes contentShow {
+              from { opacity: 0; transform: translate(-50%, -48%) scale(0.96); }
+              to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            }
+            .DialogOverlay[data-state='open'] {
+              animation: overlayShow 150ms cubic-bezier(0.16, 1, 0.3, 1);
+            }
+            .DialogContent[data-state='open'] {
+              animation: contentShow 150ms cubic-bezier(0.16, 1, 0.3, 1);
+            }
+
+            /* Page content fade-in */
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            .fade-in-content {
+                animation: fadeIn 0.5s ease-out forwards;
+            }
+            """),
     ],
 )
 app.register_lifespan_task(database_lifespan)

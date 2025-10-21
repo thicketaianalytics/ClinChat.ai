@@ -2,7 +2,7 @@ import reflex as rx
 
 
 class UIState(rx.State):
-    sidebar_collapsed: bool = False
+    sidebar_collapsed: bool = True
     filters_collapsed: bool = False
 
     @rx.event

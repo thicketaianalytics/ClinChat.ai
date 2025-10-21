@@ -115,7 +115,7 @@ def sidebar() -> rx.Component:
         ),
         class_name=rx.cond(
             UIState.sidebar_collapsed,
-            "fixed top-0 left-0 w-20 bg-white border-r border-gray-200 h-screen hidden md:flex flex-col transition-all duration-300",
-            "fixed top-0 left-0 w-64 bg-white border-r border-gray-200 h-screen hidden md:flex flex-col transition-all duration-300",
+            "fixed top-0 left-[-100%] md:left-0 w-64 md:w-20 bg-white border-r border-gray-200 h-screen flex flex-col transition-all duration-300 z-40",
+            "fixed top-0 left-0 w-64 bg-white border-r border-gray-200 h-screen flex flex-col transition-all duration-300 z-40",
         ),
     )
