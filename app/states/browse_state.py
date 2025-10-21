@@ -182,10 +182,12 @@ class BrowseState(rx.State):
         try:
             from app.states.saved_trials_state import SavedTrialsState
 
+            saved_trials_state = None
             async with self:
                 saved_trials_state = await self.get_state(SavedTrialsState)
-            async for event in saved_trials_state.save_trial(nct_id):
-                yield event
+            if saved_trials_state:
+                async for event in saved_trials_state.save_trial(nct_id):
+                    yield event
         except Exception as e:
             logging.exception(f"Failed to bookmark trial {nct_id}: {e}")
             async with self:
