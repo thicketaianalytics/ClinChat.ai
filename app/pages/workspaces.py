@@ -99,6 +99,7 @@ def workspace_card(workspace: rx.Var[dict]) -> rx.Component:
             ),
             class_name="flex items-center gap-4 mt-3 pt-3 border-t border-gray-100",
         ),
+        href=f"/workspaces/{workspace['workspace_id']}",
         class_name="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex flex-col hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300",
     )
 

@@ -88,7 +88,6 @@ def enrollment_trends_chart() -> rx.Component:
             ),
             rx.recharts.x_axis(data_key="phase"),
             rx.recharts.y_axis(),
-            rx.recharts.legend(),
             data=AnalyticsState.enrollment_trends,
         ),
     )
@@ -219,8 +218,9 @@ def design_patterns_chart() -> rx.Component:
                 outer_radius=80,
                 fill="#8884d8",
                 label=True,
+                stroke="#fff",
+                stroke_width=2,
             ),
-            rx.recharts.legend(),
         ),
     )
 

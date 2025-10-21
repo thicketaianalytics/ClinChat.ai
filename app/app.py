@@ -115,3 +115,11 @@ app.add_page(
     route="/workspaces",
     on_load=[AuthState.check_login, WorkspaceState.load_workspaces],
 )
+from app.pages.workspace_detail import workspace_detail_page
+from app.states.workspace_detail_state import WorkspaceDetailState
+
+app.add_page(
+    workspace_detail_page,
+    route="/workspaces/[workspace_id]",
+    on_load=[AuthState.check_login, WorkspaceDetailState.load_workspace],
+)

@@ -16,27 +16,23 @@ _user_workspaces_db: dict[str, set[str]] = {}
 
 class WorkspaceState(rx.State):
     workspaces: list[Workspace] = []
-    current_workspace_id: str = ""
     is_loading: bool = False
     show_create_dialog: bool = False
-
-    @rx.var
-    def current_workspace(self) -> Workspace | None:
-        if self.current_workspace_id:
-            return _workspaces_db.get(self.current_workspace_id)
-        return None
 
     async def _get_user_email(self) -> str | None:
         auth_state = await self.get_state(AuthState)
         if auth_state.user:
-            return auth_state.user["email"]
+            return auth_state.user.get("email")
         return None
 
     @rx.event(background=True)
     async def load_workspaces(self):
+        user_email = None
         async with self:
             self.is_loading = True
-        user_email = await self._get_user_email()
+            auth_state = await self.get_state(AuthState)
+            if auth_state.user:
+                user_email = auth_state.user.get("email")
         if user_email:
             user_workspace_ids = _user_workspaces_db.get(user_email, set())
             user_workspaces_list = [
@@ -53,7 +49,11 @@ class WorkspaceState(rx.State):
 
     @rx.event(background=True)
     async def create_workspace(self, form_data: dict):
-        user_email = await self._get_user_email()
+        user_email = None
+        async with self:
+            auth_state = await self.get_state(AuthState)
+            if auth_state.user:
+                user_email = auth_state.user.get("email")
         if not user_email:
             yield rx.toast.error("You must be logged in to create a workspace.")
             return
@@ -86,3 +86,49 @@ class WorkspaceState(rx.State):
     @rx.event
     def set_show_create_dialog(self, show: bool):
         self.show_create_dialog = show
+
+    @rx.event(background=True)
+    async def add_trial_to_workspace(self, workspace_id: str, nct_id: str):
+        user_email = None
+        async with self:
+            auth_state = await self.get_state(AuthState)
+            if auth_state.user:
+                user_email = auth_state.user.get("email")
+        if not user_email:
+            yield rx.toast.error("You must be logged in.")
+            return
+        if workspace_id not in _workspaces_db:
+            yield rx.toast.error("Workspace not found.")
+            return
+        workspace = _workspaces_db[workspace_id]
+        if user_email not in [m["email"] for m in workspace["members"]]:
+            yield rx.toast.error("You are not a member of this workspace.")
+            return
+        if any((t["nct_id"] == nct_id for t in workspace["trials"])):
+            yield rx.toast.info(f"Trial {nct_id} is already in this workspace.")
+            return
+        now = datetime.datetime.now(datetime.timezone.utc).isoformat()
+        workspace["trials"].append(
+            WorkspaceTrial(
+                nct_id=nct_id, added_by=user_email, added_date=now, workspace_notes=""
+            )
+        )
+        workspace["last_updated"] = now
+        workspace["activity"].insert(
+            0,
+            WorkspaceActivity(
+                activity_id=str(uuid.uuid4()),
+                user=user_email,
+                action="added trial",
+                target=nct_id,
+                timestamp=now,
+                details=f"Added trial {nct_id}",
+            ),
+        )
+        async with self:
+            yield rx.toast.success(
+                f"Trial {nct_id} added to workspace '{workspace['name']}'."
+            )
+            from app.states.workspace_detail_state import WorkspaceDetailState
+
+            yield WorkspaceDetailState.load_workspace
