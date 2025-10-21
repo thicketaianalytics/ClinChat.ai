@@ -179,10 +179,11 @@ class BrowseState(rx.State):
     async def bookmark_trial(self, nct_id: str):
         async with self:
             self.bookmark_loading[nct_id] = True
+        try:
             from app.states.saved_trials_state import SavedTrialsState
 
-            saved_trials_state = await self.get_state(SavedTrialsState)
-        try:
+            async with self:
+                saved_trials_state = await self.get_state(SavedTrialsState)
             async for event in saved_trials_state.save_trial(nct_id):
                 yield event
         except Exception as e:
@@ -191,4 +192,5 @@ class BrowseState(rx.State):
                 yield rx.toast.error("Failed to save trial.")
         finally:
             async with self:
-                self.bookmark_loading[nct_id] = False
+                if nct_id in self.bookmark_loading:
+                    del self.bookmark_loading[nct_id]
