@@ -1,0 +1,12 @@
+
+reflex==0.8.15a1
+reflex-google-auth
+psycopg2-binary
+bcrypt
+psycopg2
+pandas
+polars
+connectorx
+pyarrow
+anthropic
+reflex-enterprise
