@@ -56,27 +56,30 @@ class AIState(rx.State):
 
     @rx.event(background=True)
     async def generate_comparison_insights(self):
+        comparison_data = None
+        selected_nct_ids = None
         async with self:
             if self.is_generating_insights:
                 return
             self.is_generating_insights = True
             self.comparison_insights = ""
+            comparison_state = await self.get_state(ComparisonState)
+            comparison_data = comparison_state.comparison_data
+            selected_nct_ids = comparison_state.selected_nct_ids
+            if not comparison_data:
+                yield rx.toast.warning("No trials to compare.")
+                self.is_generating_insights = False
+                return
             yield rx.toast.info("Generating AI comparison insights...")
         try:
-            async with self:
-                comparison_state = await self.get_state(ComparisonState)
-            if not comparison_state.comparison_data:
-                async with self:
-                    yield rx.toast.warning("No trials to compare.")
-                return
             trials_summary = []
-            for trial in comparison_state.comparison_data:
+            for trial in comparison_data:
                 trials_summary.append(
                     f"- NCT ID: {trial['nct_id']}, Title: {trial['brief_title']}, Status: {trial['overall_status']}, Phase: {trial['phase']}, Enrollment: {trial['enrollment']}"
                 )
             prompt = f"As a clinical research analyst, provide a comparative analysis of the following clinical trials:\n\n            {chr(10).join(trials_summary)}\n\n            Your analysis should be a narrative that includes:\n            1.  **Key Differences**: Highlight the most significant differences in trial design (e.g., phase, status, enrollment size).\n            2.  **Potential Similarities**: Identify any underlying similarities in objectives or scope that might not be immediately obvious.\n            3.  **Strategic Insight**: Based on the data, offer a brief strategic insight. For example, which trial appears to be higher risk but higher reward? Which is a later-stage validation? \n\n            Present this as a concise report for a strategy meeting. Use bold headings for each section."
             insights_text = ai_client.generate_content(
-                prompt, cache_key=f"compare_{comparison_state.selected_nct_ids}"
+                prompt, cache_key=f"compare_{selected_nct_ids}"
             )
             async with self:
                 self.comparison_insights = insights_text
