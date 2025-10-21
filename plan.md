@@ -163,9 +163,7 @@
 - [x] Add professional styling with ClinChat.ai branding
 - [x] Include charts and visualizations in reports
 
----
-
-## 🎨 Phase 13: Enhanced UI/UX Improvements ✅
+## Phase 13: Enhanced UI/UX Improvements ✅
 **Goal**: Polish and refine the user interface
 
 ### Part 1: Loading States & Empty States ✅
@@ -218,34 +216,112 @@
 
 ---
 
-## 🔮 Phase 14: AI-Powered Features (When API Credits Available)
+## 🔮 Phase 14: AI-Powered Features (IN PROGRESS)
 **Goal**: Intelligent insights using Claude AI
+**Status**: ⚠️ API Key configured but requires credit top-up
 
-### Tasks:
-- [ ] Implement AI-powered trial summarization
-- [ ] Add natural language query enhancement with AI
-- [ ] Create risk assessment summaries with AI
-- [ ] Build comparative insights generator
-- [ ] Add AI-powered trial recommendations
-- [ ] Implement predictive analytics for trial success
-- [ ] Create AI chatbot for trial queries
-- [ ] Build automated report narrative generation
+### Part 1: AI Infrastructure Setup ⏳
+- [x] Verify ANTHROPIC_API_KEY environment variable
+- [x] Test API connection with Claude 3.5 Sonnet
+- [ ] Create app/utils/ai_helper.py with Claude client wrapper
+- [ ] Create AIState for managing AI-powered features
+- [ ] Build error handling for API rate limits and failures
+- [ ] Implement caching for AI responses to reduce API calls
+- [ ] Add loading states for AI operations
+
+### Part 2: AI Trial Summarization
+- [ ] Create trial_summarizer function using Claude
+- [ ] Add "AI Summary" section to trial detail page
+- [ ] Implement bullet-point summary generation
+- [ ] Add key findings extraction
+- [ ] Create risk/benefit analysis summary
+- [ ] Add "Generate AI Summary" button with loading state
+- [ ] Cache AI summaries per trial
+- [ ] Test with multiple trial types (Phase 1, 2, 3, 4)
+
+### Part 3: Natural Language Query Enhancement
+- [ ] Enhance AdvancedSearchState with AI query parsing
+- [ ] Build AI-powered query interpreter for complex questions
+- [ ] Add query suggestions based on user input
+- [ ] Implement semantic search capabilities
+- [ ] Create query refinement with AI feedback
+- [ ] Add "Ask AI" input box on Browse page
+- [ ] Test with complex multi-criteria queries
+
+### Part 4: Comparative Insights Generator
+- [ ] Create AI-powered comparison analysis
+- [ ] Add "AI Insights" section to Compare page
+- [ ] Generate narrative comparison summaries
+- [ ] Identify key differences and similarities
+- [ ] Create risk comparison analysis
+- [ ] Add timeline comparison insights
+- [ ] Build sponsor strategy comparison
+- [ ] Test with 2-5 trial comparisons
+
+### Part 5: AI Recommendations Engine
+- [ ] Build recommendation algorithm using Claude
+- [ ] Add "Recommended Trials" section to dashboard
+- [ ] Implement personalized trial suggestions
+- [ ] Create similarity scoring with AI
+- [ ] Add "Why recommended?" explanations
+- [ ] Build user preference learning (based on saved trials)
+- [ ] Test recommendation quality and relevance
+
+### Part 6: Risk Assessment AI
+- [ ] Create risk assessment analyzer using Claude
+- [ ] Add "Risk Assessment" section to trial detail page
+- [ ] Analyze eligibility criteria complexity
+- [ ] Identify potential enrollment challenges
+- [ ] Assess completion probability factors
+- [ ] Generate risk mitigation suggestions
+- [ ] Test with various trial complexities
+
+### Part 7: AI Chatbot for Trial Queries
+- [ ] Create ChatState for conversation management
+- [ ] Build chat UI component (sidebar or modal)
+- [ ] Implement streaming responses from Claude
+- [ ] Add context awareness (current page, selected trials)
+- [ ] Create conversation history storage
+- [ ] Add "Ask AI about this trial" button
+- [ ] Implement follow-up question handling
+- [ ] Test conversational flow and accuracy
+
+### Part 8: Automated Report Narratives
+- [ ] Enhance report_generator.py with AI narratives
+- [ ] Add executive summary generation to PDFs
+- [ ] Create AI-written insights sections
+- [ ] Generate trend analysis narratives
+- [ ] Add AI-powered recommendations to reports
+- [ ] Create report quality scoring
+- [ ] Test narrative quality and accuracy
+- [ ] Verify PDF formatting with AI content
 
 ---
 
-## 🎯 CURRENT STATUS: Phase 13 Complete! 🎉
+## 🎯 CURRENT STATUS: Phase 14 Started! 🚀
 **Progress**: 13/14 phases complete (93%)
 
-**🎊 Phase 13 Achievements:**
-- ✅ Loading skeletons on all pages
-- ✅ Empty states for all list views
-- ✅ Comprehensive error handling and toast notifications
-- ✅ Mobile-responsive navigation with hamburger menu
-- ✅ Keyboard shortcuts (Cmd+K, Cmd+S, Escape)
-- ✅ Accessibility features (ARIA labels, focus states, skip links)
-- ✅ Smooth animations on all pages (fade-in, hover effects)
-- ✅ Dialog animations (overlay + content)
-- ✅ Button press feedback (active states)
-- ✅ Contextual tooltips
+**⚠️ API Status**: 
+- ✅ Anthropic API key is configured (108 characters)
+- ❌ Credit balance is too low to access the API
+- 📝 Action Required: Top up credits at https://console.anthropic.com/settings/plans
 
-**Next Up**: Phase 14 - AI-Powered Features (requires Anthropic API credits)
+**Next Steps**:
+1. Top up Anthropic API credits
+2. Complete Phase 14 Part 1: AI Infrastructure Setup
+3. Implement AI-powered trial summarization
+4. Build natural language query enhancement
+5. Create comparative insights generator
+6. Add AI recommendations engine
+7. Implement risk assessment AI
+8. Build AI chatbot for trial queries
+9. Add automated report narratives
+
+**Phase 14 Benefits**:
+- 🤖 Intelligent trial summaries with key insights
+- 🔍 Advanced natural language search with AI
+- 📊 Automated comparative analysis
+- 🎯 Personalized trial recommendations
+- ⚠️ AI-powered risk assessments
+- 💬 Interactive chatbot for trial queries
+- 📝 Professional AI-written report narratives
