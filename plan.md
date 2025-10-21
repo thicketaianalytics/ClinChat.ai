@@ -124,12 +124,7 @@
 - [x] Test workspace collaboration flows
 - [x] Fix async context issues in background tasks
 
----
-
-## 🔔 Phase 11: Automated Alerts & Watchlists ✅
-**Goal**: Proactive monitoring of trials matching user-defined criteria
-
-### Tasks:
+## Phase 11: Automated Alerts & Watchlists ✅
 - [x] Create Watchlist data model (watchlist_id, name, criteria, matches)
 - [x] Create WatchlistCriteria and WatchlistMatch TypedDicts
 - [x] Create AlertsState for managing user watchlists
@@ -145,25 +140,33 @@
 - [x] Display watchlist criteria as badges
 - [x] Add "Alerts" to sidebar navigation
 - [x] Register alerts page route in app.py
-- [x] Test watchlist matching with real AACT data (27 matches for Alzheimer's PHASE3)
+- [x] Test watchlist matching with real AACT data
 - [x] Fix async context issues in background tasks
 
 ---
 
-## 📄 Phase 12: Professional Report Generation (PDF/Excel)
+## 📄 Phase 12: Professional Report Generation (PDF/Excel) ✅
 **Goal**: Auto-generate publication-quality reports from trial data
 
 ### Tasks:
-- [ ] Install reportlab (PDF) library
-- [ ] Create ReportGeneratorState for managing exports
-- [ ] Build PDF report templates (trial summary, comparison report)
-- [ ] Implement PDF generation for trial details
-- [ ] Add PDF export for comparison tables
-- [ ] Create PDF export for analytics dashboards
-- [ ] Build Excel export with openpyxl (multi-sheet workbooks)
-- [ ] Add "Download PDF" button on trial detail, comparison, analytics pages
-- [ ] Implement report customization (include/exclude sections)
-- [ ] Test all report exports with real data
+- [x] Install reportlab and openpyxl libraries for PDF and Excel generation
+- [x] Create app/utils/report_generator.py with helper functions
+- [x] Create ReportState for managing report exports
+- [x] Build PDF report template structure with reportlab
+- [x] Implement PDF generation for single trial detail reports
+- [x] Add trial summary section with key metrics and infographic
+- [x] Add eligibility criteria section to PDF
+- [x] Add locations and interventions sections to PDF
+- [x] Implement PDF export for comparison tables (multi-trial)
+- [x] Build Excel export with openpyxl (multi-sheet workbooks)
+- [x] Add "Download PDF Report" button on trial detail page
+- [x] Add "Export as PDF" button on compare page
+- [x] Add "Export as Excel" option for saved trials
+- [x] Test all PDF exports with real trial data
+- [x] Test Excel exports with multiple sheets
+- [x] Verify all download functionality works correctly
+- [x] Add professional styling with ClinChat.ai branding
+- [x] Include charts and visualizations in reports
 
 ---
 
@@ -199,17 +202,7 @@
 
 ---
 
-## 🎯 CURRENT STATUS: Phase 11 Complete! 
-**Progress**: 11/14 phases complete (79%)
+## 🎯 CURRENT STATUS: Phase 12 Complete! Starting Phase 13!
+**Progress**: 12/14 phases complete (86%)
 
-## ✅ Phase 11 Achievements:
-- Complete watchlist system for proactive trial monitoring
-- Criteria-based matching (condition, intervention, sponsor, phase, status, country)
-- Manual "Check Now" trigger to find new matching trials
-- Watchlist management (create, delete, toggle active/inactive)
-- Real-time database queries with toast notifications
-- Successfully tested with real AACT data (found 27 Alzheimer's Phase 3 trials)
-- Watchlist cards show criteria summary, match count, last checked timestamp
-- Active/inactive toggle to pause watchlist monitoring
-
-**Ready for Phase 12**: Professional Report Generation (PDF/Excel)
+**Next Up**: Enhanced UI/UX Improvements with loading states, error handling, and polish

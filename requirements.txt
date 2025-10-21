@@ -1,4 +1,5 @@
 
+
 reflex==0.8.15a1
 reflex-google-auth
 psycopg2-binary
@@ -10,3 +11,7 @@ connectorx
 pyarrow
 anthropic
 reflex-enterprise
+reportlab
+openpyxl
+
+

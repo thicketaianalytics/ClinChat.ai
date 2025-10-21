@@ -3,6 +3,7 @@ from app.states.saved_trials_state import SavedTrialsState
 from app.states.ui_state import UIState
 from app.components.sidebar import sidebar
 import datetime
+from app.states.report_state import ReportState
 
 
 def tag_badge(tag: str, nct_id: str) -> rx.Component:
@@ -150,10 +151,19 @@ def my_trials_page() -> rx.Component:
                     f"{SavedTrialsState.saved_trials.length()} trials saved.",
                     class_name="text-gray-600",
                 ),
-                rx.el.button(
-                    "Export All to CSV",
-                    on_click=SavedTrialsState.export_to_csv,
-                    class_name="text-sm font-medium bg-white text-gray-700 border border-gray-300 px-3 py-1.5 rounded-md hover:bg-gray-50",
+                rx.el.div(
+                    rx.el.button(
+                        "Export All to CSV",
+                        on_click=SavedTrialsState.export_to_csv,
+                        class_name="text-sm font-medium bg-white text-gray-700 border border-gray-300 px-3 py-1.5 rounded-md hover:bg-gray-50",
+                    ),
+                    rx.el.button(
+                        "Export as Excel",
+                        on_click=ReportState.generate_saved_trials_excel,
+                        is_loading=ReportState.is_generating_excel,
+                        class_name="text-sm font-medium bg-white text-gray-700 border border-gray-300 px-3 py-1.5 rounded-md hover:bg-gray-50",
+                    ),
+                    class_name="flex items-center gap-2",
                 ),
                 class_name="flex justify-between items-center mb-4",
             ),

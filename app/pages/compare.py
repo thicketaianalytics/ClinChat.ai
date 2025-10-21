@@ -2,6 +2,7 @@ import reflex as rx
 from app.states.comparison_state import ComparisonState
 from app.states.ui_state import UIState
 from app.components.sidebar import sidebar
+from app.states.report_state import ReportState
 
 
 def selected_trial_chip(nct_id: str) -> rx.Component:
@@ -134,6 +135,12 @@ def compare_page() -> rx.Component:
                             rx.el.button(
                                 "Export to CSV",
                                 on_click=ComparisonState.export_comparison_csv,
+                                class_name="text-sm font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 px-3 py-1.5 rounded-md border border-gray-300",
+                            ),
+                            rx.el.button(
+                                "Export as PDF",
+                                on_click=ReportState.generate_comparison_pdf,
+                                is_loading=ReportState.is_generating_pdf,
                                 class_name="text-sm font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 px-3 py-1.5 rounded-md border border-gray-300",
                             ),
                             class_name="flex items-center gap-2",

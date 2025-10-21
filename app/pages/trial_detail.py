@@ -4,6 +4,7 @@ from app.states.trial_detail_state import TrialDetailState
 from app.components.sidebar import sidebar
 from app.states.ui_state import UIState
 from app.states.saved_trials_state import SavedTrialsState
+from app.states.report_state import ReportState
 
 
 def detail_section(title: str, content: rx.Var, is_html: bool = True) -> rx.Component:
@@ -15,13 +16,7 @@ def detail_section(title: str, content: rx.Var, is_html: bool = True) -> rx.Comp
                 is_html,
                 rx.el.div(
                     rx.html(
-                        content.to_string()
-                        .replace('"', "")
-                        .replace(
-                            """
-""",
-                            "<br />",
-                        )
+                        content.to_string().replace('"', "").replace('""', "<br />")
                     ),
                     class_name="text-sm text-gray-600 prose prose-sm max-w-none",
                 ),
@@ -390,13 +385,23 @@ def trial_detail_page() -> rx.Component:
                             href="/browse",
                             class_name="text-sm font-medium text-blue-600 hover:underline mb-2 inline-block",
                         ),
-                        rx.el.button(
-                            rx.icon(tag="bookmark", size=16, class_name="mr-2"),
-                            "Save to My Trials",
-                            on_click=lambda: SavedTrialsState.save_trial(
-                                trial.get("nct_id")
+                        rx.el.div(
+                            rx.el.button(
+                                rx.icon(tag="bookmark", size=16, class_name="mr-2"),
+                                "Save to My Trials",
+                                on_click=lambda: SavedTrialsState.save_trial(
+                                    trial.get("nct_id")
+                                ),
+                                class_name="flex items-center bg-blue-600 text-white text-sm font-medium py-1.5 px-3 rounded-md hover:bg-blue-700 transition-colors",
                             ),
-                            class_name="flex items-center bg-blue-600 text-white text-sm font-medium py-1.5 px-3 rounded-md hover:bg-blue-700 transition-colors",
+                            rx.el.button(
+                                rx.icon(tag="file-down", size=16, class_name="mr-2"),
+                                "Download PDF",
+                                on_click=ReportState.generate_trial_pdf,
+                                is_loading=ReportState.is_generating_pdf,
+                                class_name="flex items-center bg-white text-gray-700 border border-gray-300 text-sm font-medium py-1.5 px-3 rounded-md hover:bg-gray-50 transition-colors",
+                            ),
+                            class_name="flex items-center gap-2",
                         ),
                         class_name="flex items-center justify-between mb-2",
                     ),

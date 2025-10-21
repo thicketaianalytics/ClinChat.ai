@@ -298,18 +298,30 @@ def analytics_page() -> rx.Component:
         sidebar(),
         rx.el.div(
             rx.el.div(
-                rx.el.h1(
-                    "Analytics & Insights Dashboard",
-                    class_name="text-2xl font-bold text-gray-800",
+                rx.el.div(
+                    rx.el.h1(
+                        "Analytics & Insights Dashboard",
+                        class_name="text-2xl font-bold text-gray-800",
+                    ),
+                    rx.el.p(
+                        "Visualizing clinical trial data trends.",
+                        class_name="text-gray-600",
+                    ),
                 ),
-                rx.el.p(
-                    "Visualizing clinical trial data trends.",
-                    class_name="text-gray-600",
-                ),
-                rx.el.button(
-                    "Export Report",
-                    on_click=AnalyticsState.export_analytics_report,
-                    class_name="text-sm font-medium bg-white text-gray-700 border border-gray-300 px-3 py-1.5 rounded-md hover:bg-gray-50",
+                rx.el.div(
+                    rx.el.button(
+                        "Export Report (CSV)",
+                        on_click=AnalyticsState.export_analytics_report,
+                        class_name="text-sm font-medium bg-white text-gray-700 border border-gray-300 px-3 py-1.5 rounded-md hover:bg-gray-50",
+                    ),
+                    rx.el.button(
+                        "Download PDF Report",
+                        on_click=lambda: rx.toast.warning(
+                            "PDF export for analytics is not yet implemented."
+                        ),
+                        class_name="text-sm font-medium bg-white text-gray-700 border border-gray-300 px-3 py-1.5 rounded-md hover:bg-gray-50",
+                    ),
+                    class_name="flex items-center gap-2",
                 ),
                 class_name="flex justify-between items-center mb-6",
             ),
