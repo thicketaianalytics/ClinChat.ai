@@ -65,7 +65,9 @@ class SavedTrialsState(rx.State):
 
     @rx.event(background=True)
     async def save_trial(self, nct_id: str):
-        user_trials = await self._get_user_trials()
+        user_trials = None
+        async with self:
+            user_trials = await self._get_user_trials()
         if user_trials is None:
             async with self:
                 yield rx.toast.error("You must be logged in to save trials.")
