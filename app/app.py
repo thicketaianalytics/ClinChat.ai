@@ -123,3 +123,11 @@ app.add_page(
     route="/workspaces/[workspace_id]",
     on_load=[AuthState.check_login, WorkspaceDetailState.load_workspace],
 )
+from app.pages.alerts import alerts_page
+from app.states.alerts_state import AlertsState
+
+app.add_page(
+    alerts_page,
+    route="/alerts",
+    on_load=[AuthState.check_login, AlertsState.load_watchlists],
+)

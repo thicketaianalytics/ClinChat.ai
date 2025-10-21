@@ -91,6 +91,7 @@ def sidebar() -> rx.Component:
                 nav_item(
                     "Workspaces", "users", "/workspaces", current_path == "/workspaces"
                 ),
+                nav_item("Alerts", "bell", "/alerts", current_path == "/alerts"),
                 class_name=rx.cond(
                     UIState.sidebar_collapsed,
                     "flex-1 p-2 space-y-2",
