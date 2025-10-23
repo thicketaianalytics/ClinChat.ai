@@ -13,3 +13,4 @@ reflex-enterprise
 reportlab
 openpyxl
 google-genai
+google-generativeai
